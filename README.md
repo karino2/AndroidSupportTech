@@ -10,5 +10,5 @@ Androidを支える技術のサポートページです。
 
 本書の内容を簡単に紹介する為に、幾つか解説を書きました。
 
-- [PCのメモリサブシステムとGUIシステムの比較](https://gist.github.com/karino2/5ad8c0ca2966399de3bb7be5e070073f)
+- [PCのメモリサブシステムとGUIシステムの比較(Androidを支える技術〈Ⅰ〉の内容紹介)](https://gist.github.com/karino2/5ad8c0ca2966399de3bb7be5e070073f)
 
