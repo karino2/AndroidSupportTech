@@ -2,6 +2,9 @@
 
 Androidを支える技術のサポートページです。
 
+![Androidを支える技術I、書影](https://github.com/karino2/AndroidSupportTech/blob/images/front_page.jpg)
+
+
 - [Androidを支える技術〈Ⅰ〉 ──60fpsを達成するモダンなGUIシステム](http://gihyo.jp/book/2017/978-4-7741-8759-4)
 
 目次は上記リンクから見る事が出来ます。
