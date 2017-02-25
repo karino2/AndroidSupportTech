@@ -27,9 +27,23 @@ https://github.com/android/
 
 ### 2.4 InputReader
 
+InputManager周辺のコードはだいたい https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/services/inputflinger/ にあります。
+native下はたぶんgithub側にはホストされていないので公式の方をリンクします。
+
 - InputReader https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/services/inputflinger/InputReader.cpp
+  - InputMapperとそのサブクラスもこちら
 - EventHub https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/services/inputflinger/EventHub.cpp
   - デバイスクラスなどはEventHub.hにある https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/services/inputflinger/EventHub.h
+
+### 2.5 InputDispatcherとInputChannel
+
+- InputDispatcher https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/services/inputflinger/InputDispatcher.cpp
+- InputChannel https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/libs/input/InputTransport.cpp
+  - ヘッダはこちら https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/include/input/InputTransport.h
+
+なお、InputManagerServiceは言語境界を超えて広く分散されてしまうが、例えばregisterInputChannel()を見たいなら、以下のあたりを見る。
+
+- InputManagerServiceのjni https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/services/core/jni/com_android_server_input_InputManagerService.cpp
 
 
 
