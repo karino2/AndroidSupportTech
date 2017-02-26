@@ -45,5 +45,12 @@ native下はたぶんgithub側にはホストされていないので公式の�
 
 - InputManagerServiceのjni https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/services/core/jni/com_android_server_input_InputManagerService.cpp
 
+## 3章
 
-
+- Looper https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/os/Looper.java
+- MessageQueue https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/os/MessageQueue.java
+   - nativePollOnceは、https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/jni/android_os_MessageQueue.cpp から
+     以下のpollOnceに行き着く https://github.com/android/platform_system_core/blob/master/libutils/Looper.cpp
+- Handler https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/os/Handler.java
+- ActivityThread https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/app/ActivityThread.java
+   - scheduleLaunchActivity()などの例で本文では出てくる。main()も見てみるとLooperのloop()の呼び方の良い例となっている。詳細は第二巻。
