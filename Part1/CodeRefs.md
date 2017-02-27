@@ -54,3 +54,33 @@ native下はたぶんgithub側にはホストされていないので公式の�
 - Handler https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/os/Handler.java
 - ActivityThread https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/app/ActivityThread.java
    - scheduleLaunchActivity()などの例で本文では出てくる。main()も見てみるとLooperのloop()の呼び方の良い例となっている。詳細は第二巻。
+
+
+## 4章
+
+- AssetManager https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/content/res/AssetManager.java
+   - XmlResourcePraserの取得はopenXmlResourcePraser()のあたりを読む
+- LayoutInflater https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/LayoutInflater.java
+- PhoneLayoutInflater https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/com/android/internal/policy/PhoneLayoutInflater.java
+- XmlBlock https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/content/res/XmlBlock.java
+   - XmlResourceParserの実装はこのXmlBlockのParserを見る
+   - ネイティブ側はこちらを経由して https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/jni/android_util_XmlBlock.cpp
+   - 最終的にResXMLTreeへ https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/androidfw/ResourceTypes.cpp
+      - ResXMLTreeのsetTo()がmemcpy()しているあたり(本文の4.3.6に相当)
+      - 本文ではResXMLTreeとResXMLParserの関係は詳細過ぎるという事で省いているが、ResXMLTreeがResXMLParserを持っていて、大部分の仕事はResXMLParserがやっています。
+- LinearLayout https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/widget/LinearLayout.java
+
+### 4.4
+- Activity https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/app/Activity.java
+   - setContentView()の実体はPhoneWindow側
+- PhoneWindow https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/com/android/internal/policy/PhoneWindow.java
+- screen_title.xml https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/res/res/layout/screen_title.xml
+
+### 4.5
+
+- View https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/View.java
+- ImageView https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/widget/ImageView.java
+
+### 4.6
+- LinearLayout https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/widget/LinearLayout.java
+- ViewGroup https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewGroup.java
