@@ -84,3 +84,38 @@ native下はたぶんgithub側にはホストされていないので公式の�
 ### 4.6
 - LinearLayout https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/widget/LinearLayout.java
 - ViewGroup https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewGroup.java
+
+
+## 5章
+
+- ViewRootImpl https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java
+   - レンダリングのはじまりはViewRootImplのperformTraversals() -> performDraw() -> draw()
+   - ThreadedRenderer::draw()呼び出しは以下 https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L2796
+- ThreadedRenderer https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ThreadedRenderer.java
+   - View https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/View.java
+   - RenderNode http://tools.oesf.biz/android-7.0.0_r1.0/xref/frameworks/base/core/java/android/view/RenderNode.java
+- DisplayListCanvas https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/DisplayListCanvas.java
+
+nSyncAndDrawFrame()は少し大変だが、
+
+- jniのnSyncAndDrawFrame() https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/jni/android_view_ThreadedRenderer.cpp
+  - RenderProxy(プロセス間通信) https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/RenderProxy.cpp
+  - DrawFrameTask(その時のコマンド) https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/DrawFrameTask.cpp
+     - 少しややこしいけど、別スレッド（RenderThread）がDrawFrameTaskのrun()を呼ぶ
+     - CanvasContextのdrawRenderNode()が呼ばれる(例えば以下) https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/CanvasContext.cpp#L433
+     - mCanvasはOpenGLRendererのdrawRenderNode() https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/OpenGLRenderer.cpp#L1427
+
+### 5.3
+
+- DisplayListOp https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/DisplayListOp.h
+
+
+### 5.4
+
+- View https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/View.java
+- ViewGroup https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewGroup.java
+- android_view_RenderNode_offsetTopAndBottomとSET_AND_DIRTY https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/jni/android_view_RenderNode.cpp
+- fling()処理はこちら AbsListView https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/widget/AbsListView.java
+    - なお、RecyclerViewのfling()は全く同じコード
+    - https://github.com/android/platform_frameworks_support/blob/android-cts-7.0_r6/v7/recyclerview/src/android/support/v7/widget/RecyclerView.java#L1866
+
