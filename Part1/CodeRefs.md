@@ -140,9 +140,8 @@ egl呼び出しとgrallocの間は、実際はかなりいろんなクラスが�
 間接参照が多い類のコードなのでここに全部参照を貼るのは難しくなっています。
 そこで実際にコードを読む人が頑張ってもらうのが一番理解が容易と思いますが、その時のヒントを幾つか書いておきます。
 
-1. grallocはBufferQueueProducerのallocateBuffers()の中から呼ばれ、BufferQueueProducerはSurfaceがラップしている
-2. EGL関連呼び出しはCanvasContextが行うが、これはRenderProxyが呼び出している(RenderProxyについては本書5.2.2などで簡単に解説してあります）
-3. CanvasContextのsetSrufaceで主要な処理は行われていて、これはinitializeから呼ばれて、これは結局はThreadedRendererのinitializeから呼ばれる（ThreadedRendererは本書5.2を参照）
+1. EGL関連呼び出しはCanvasContextが行うが、これはRenderProxyが呼び出している(RenderProxyについては本書5.2.2などで簡単に解説してあります）
+2. RenderProxyはThreadedRendererから呼ばれる（ThreadedRendererは本書5.2を参照）
 
 以上を踏まえて、主要な所だけを見ていきましょう。
 
@@ -154,3 +153,29 @@ egl呼び出しとgrallocの間は、実際はかなりいろんなクラスが�
 - eglMakeCurrent()はEglManagerのbeginFrame()で呼ばれて、それはCanvasContext::draw()で呼ばれる
   - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/CanvasContext.cpp#L309
   - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/EglManager.cpp#L304
+
+こうして、eglCreateWindowSurface()がeglMakeCurrent()される事は分かった。このCanvasContextのメソッドは以下のRenderProxyから呼ばれる
+
+- https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/RenderProxy.cpp#L137
+    - initializeはここ
+    - CREATE_BRIDGE2マクロについては私の以前のブログなども参照のこと http://karino2.livejournal.com/370929.html
+- https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/RenderProxy.cpp#L543
+    - drawはここのprepareAndDrawから呼ばれる。
+
+
+### 6.4 SurfaceFlingerとHWC
+
+6.3同様、6.4も間接参照やらBinderによる辿りにくい依存関係があって読んで行くのは大変です。
+ここも膨大なリンクの羅列では無く、読んでく上でのヒントを書いていく事にします。
+
+#### BufferQueueProducerとgralloc周辺を追う
+
+ここを全部見るのは大変なのですが、幾つかポイントを。
+
+- BufferQueueProducerのallocateBuffers()がgrallocを呼んでいる
+- これはBinder越しにSurfaceのallocateBuffers()が呼ぶ
+- 基本的には以下のフォルダ下
+  - https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/libs/gui/
+- SurfaceのallocateBuffers()はViewRootImplから呼ばれる
+  - https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java#L1852
+
