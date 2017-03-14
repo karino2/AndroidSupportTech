@@ -134,11 +134,11 @@ nSyncAndDrawFrame()は少し大変だが、
 
 ### 6.3 EGLによるOpenGL ES描画対象の指定
 
-egl呼び出しとgrallocの間は、実際はかなりいろんなクラスが出てきて、実際のコードを全部追うのは大変です。
+egl呼び出しとgrallocの間は、実際はかなりいろんなクラスが出てきて、コードを全部追うのは大変です。
 基本的な構造は本書で説明した通りですが、実際にコードを追いたいなら多くの瑣末な間接クラスを見ていく必要があります。
 
 間接参照が多い類のコードなのでここに全部参照を貼るのは難しくなっています。
-そこで実際にコードを読む人が頑張ってもらうのが一番理解が容易と思いますが、その時のヒントを幾つか書いておきます。
+この手のコードを理解するのは、実際に頑張ってコードを読んでもらうのが一番と思いますが、その時のヒントを幾つか書いておきます。
 
 1. EGL関連呼び出しはCanvasContextが行うが、これはRenderProxyが呼び出している(RenderProxyについては本書5.2.2などで簡単に解説してあります）
 2. RenderProxyはThreadedRendererから呼ばれる（ThreadedRendererは本書5.2を参照）
@@ -154,7 +154,8 @@ egl呼び出しとgrallocの間は、実際はかなりいろんなクラスが�
   - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/CanvasContext.cpp#L309
   - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/EglManager.cpp#L304
 
-こうして、eglCreateWindowSurface()がeglMakeCurrent()される事は分かった。このCanvasContextのメソッドは以下のRenderProxyから呼ばれる
+こうして、eglCreateWindowSurface()がeglMakeCurrent()される事は分かった。
+このCanvasContextのメソッドは以下のRenderProxyから呼ばれる。
 
 - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/RenderProxy.cpp#L137
     - initializeはここ
@@ -169,8 +170,6 @@ egl呼び出しとgrallocの間は、実際はかなりいろんなクラスが�
 ここも膨大なリンクの羅列では無く、読んでく上でのヒントを書いていく事にします。
 
 #### BufferQueueProducerとgralloc周辺を追う
-
-ここを全部見るのは大変なのですが、幾つかポイントを。
 
 - BufferQueueProducerのallocateBuffers()がgrallocを呼んでいる
 - これはBinder越しにSurfaceのallocateBuffers()が呼ぶ
