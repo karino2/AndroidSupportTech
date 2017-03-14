@@ -119,3 +119,38 @@ nSyncAndDrawFrame()は少し大変だが、
     - なお、RecyclerViewのfling()は全く同じコード
     - https://github.com/android/platform_frameworks_support/blob/android-cts-7.0_r6/v7/recyclerview/src/android/support/v7/widget/RecyclerView.java#L1866
 
+## 6章
+
+### 6.2 HALとgralloc
+
+- hw_get_module() https://github.com/android/platform_hardware_libhardware/blob/android-cts-7.0_r6/hardware.c
+   - 実際の処理はhw_get_module_by_class()
+      - さらにその中で呼ばれるload()でdlopen()が呼ばれる
+- hw_moduel_tの定義など https://github.com/android/platform_hardware_libhardware/blob/android-cts-7.0_r6/include/hardware/hardware.h
+- hw_module_tのgrallocの定義 https://github.com/android/platform_hardware_libhardware/blob/android-cts-7.0_r6/modules/gralloc/gralloc.cpp
+   - HAL_MODULE_INFO_SYMのあたり
+- HAL_PIXEL_FORMATの一覧 https://github.com/android/platform_system_core/blob/android-cts-7.0_r6/include/system/graphics.h
+- GRALLOC_USAGEの一覧 https://github.com/android/platform_hardware_libhardware/blob/android-cts-7.0_r6/include/hardware/gralloc.h
+
+### 6.3 EGLによるOpenGL ES描画対象の指定
+
+egl呼び出しとgrallocの間は、実際はかなりいろんなクラスが出てきて、実際のコードを全部追うのは大変です。
+基本的な構造は本書で説明した通りですが、実際にコードを追いたいなら多くの瑣末な間接クラスを見ていく必要があります。
+
+間接参照が多い類のコードなのでここに全部参照を貼るのは難しくなっています。
+そこで実際にコードを読む人が頑張ってもらうのが一番理解が容易と思いますが、その時のヒントを幾つか書いておきます。
+
+1. grallocはBufferQueueProducerのallocateBuffers()の中から呼ばれ、BufferQueueProducerはSurfaceがラップしている
+2. EGL関連呼び出しはCanvasContextが行うが、これはRenderProxyが呼び出している(RenderProxyについては本書5.2.2などで簡単に解説してあります）
+3. CanvasContextのsetSrufaceで主要な処理は行われていて、これはinitializeから呼ばれて、これは結局はThreadedRendererのinitializeから呼ばれる（ThreadedRendererは本書5.2を参照）
+
+以上を踏まえて、主要な所だけを見ていきましょう。
+
+#### eglCreateWindowSurface()とeglMakeCurrent()がCanvasContextのどこで呼ばれているかを見る
+
+- eglCreateWindowSurface()はCanvasContextのinitializeで呼ばれる
+  - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/CanvasContext.cpp#L97
+  - mEglManager::createSurface()でeglCreateWindowSurface()が呼ばれる
+- eglMakeCurrent()はEglManagerのbeginFrame()で呼ばれて、それはCanvasContext::draw()で呼ばれる
+  - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/CanvasContext.cpp#L309
+  - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/libs/hwui/renderthread/EglManager.cpp#L304
