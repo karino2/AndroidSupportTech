@@ -178,3 +178,80 @@ egl呼び出しとgrallocの間は、実際はかなりいろんなクラスが�
 - SurfaceのallocateBuffers()はViewRootImplから呼ばれる
   - https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java#L1852
 
+#### HWCのprepare周辺、HWC1
+
+HWCはちょうど現在HWC2という、よりオブジェクト指向的なインターフェースとなっているHALへの置き換えが行われている所になっています。
+書籍執筆時点ではHWC1の内容で解説してあります。ここでは本文との対応を追う目的としてHWC1のコードを示しつつ、その後HWC2の話も少し補足しておく事にします。
+
+まずHWC1から。
+
+HWCはHWComposerというクラスに保持されている。
+SurfaceFlingerがこのHWComposerを使用する。
+
+- HWC1のprepare()呼び出しはここ https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/services/surfaceflinger/DisplayHardware/HWComposer_hwc1.cpp#688
+
+HWC内のhwc_layer_1がどこからくるのかをちゃんと読んで行くのは大変だが、
+基本的にはSurfaceFlinger内のLayerというオブジェクトとだいたい対応づいている。
+
+LayerはBufferQueueProducerを保持しているもの。グラフィックスバッファを持っている物と言い換えても良い。
+Layer周辺を全部読むのも大変だが、IGraphicBufferProducerとの対応付けはonFirstRef()のあたりを読むと良い。
+
+- Layer::onFirstRef() https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/services/surfaceflinger/Layer.cpp#152
+
+これらを使っているのは、少し古いSurfaceFlingerのコードを見る必要がある。例えばMarshmallowのコードは以下。
+
+- MarshmallowのSurfaceFlinger::doComposeSurfaces() https://android.googlesource.com/platform/frameworks/native/+/marshmallow-mr1-release/services/surfaceflinger/SurfaceFlinger.cpp#1994
+
+以上が本文で説明しているコードとなります。
+
+#### HWC2の話
+
+Nougatのコードだと基本的にはHWC2が使われています。
+細かい所は違いますが、本質的にはフラグの名前がHWC_FRAMEBUFFERからHWC2::Composition::Clientと呼ばれるようになっているだけで、大きくは変わりません。
+
+- NougatのSurfaceFlinger::doComposeSurfaces() https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/services/surfaceflinger/SurfaceFlinger.cpp#2028
+- HWC2の公式ドキュメント https://source.android.com/devices/graphics/implement-hwc.html#interface_activities
+   - 最後の方にsync回りの変更の記述あり
+
+
+### 6.5 ViewRootImpl
+
+6.4までに比べると、6.5のコードは普通に読む人も多いと思います。
+WindowManagerService側のコードは読むのは大変ですが、ViewRootImplくらいまでなら楽しく読めるのでは無いでしょうか？
+
+#### DecorViewの登録
+
+- DecorViewの登録 https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/app/ActivityThread.java#L3537
+   - このaddViewはWindowsManagerGlobalというクラスの物 https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/WindowManagerGlobal.java#L263   
+   - ここでViewRootImplが生成されたり、このViewRootImplにViewツリーがセットされたりする。
+      - ViewRootImplのWindowManagerへの登録はViewRootImpl側のsetView()
+         - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L640
+         - 実際はWindowSessionという物に登録している事が分かる
+         - InputChannelの登録もここ
+
+#### ThreadedRenderer等の初期化など
+
+ThreadedRendererの初期化なども、上記のViewRootImpl::setView()の中で行われている。
+
+- ViewRootImpl::setView() https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L595
+   - enableHardwareAcceleration()呼び出しが行われている
+- ViewRootImpl::enableHardwareAcceleration()内でThreadedRenderer::create()が呼ばれている
+   - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L878
+   - ThreadedRenderer::create() https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ThreadedRenderer.java#L252
+      - ThreadedRendererのコンストラクタではRenderProxyが作られ、そこからRenderThreadやEGL関連などのさまざまな重要な初期化が行われる
+         - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ThreadedRenderer.java#L351
+         - ここからは難しくはないので自分で追ってみてください。
+
+#### ViewRootImplのperformTraversals()
+
+- https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L1436
+
+#### ViewRootImplの入力処理全般
+
+まずはInputChannelの登録。少し関連処理が散らばっているが、全てsetView()メソッドの中にある。
+
+- mInputChannelの生成 https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L631
+- 登録 https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L639
+- WindowInputReceiverとの関連付け https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L726
+- WindowInputReceiverはイベントがやってくるとenqueueInputEventする https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L6313
+- ここから先は割と素直なので読んでみていただけたらと。
