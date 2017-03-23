@@ -5,14 +5,14 @@ Androidを支える技術のサポートページです。
 
 ![Androidを支える技術II、書影](https://github.com/karino2/AndroidSupportTech/blob/images/front_page_2.png)
 - [Androidを支える技術〈Ⅱ〉 ──真のマルチタスクに挑んだモバイルOSの心臓部](http://gihyo.jp/book/2017/978-4-7741-8861-4) 電子版もこちらから。
- - [Amazonのリンク](https://www.amazon.co.jp/dp/4774188611/)
+   - [Amazonのリンク](https://www.amazon.co.jp/dp/4774188611/)
 
 ----
 
 ![Androidを支える技術I、書影](https://github.com/karino2/AndroidSupportTech/blob/images/front_page.png)
 
 - [Androidを支える技術〈Ⅰ〉 ──60fpsを達成するモダンなGUIシステム](http://gihyo.jp/book/2017/978-4-7741-8759-4) 電子版もこちらから。
- - [Amazonのリンク](https://www.amazon.co.jp/dp/4774187593)
+   - [Amazonのリンク](https://www.amazon.co.jp/dp/4774187593)
 
 目次は上記リンクから見る事が出来ます。
 
