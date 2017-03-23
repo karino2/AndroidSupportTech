@@ -7,6 +7,7 @@ Androidを支える技術のサポートページです。
 - [Androidを支える技術〈Ⅱ〉 ──真のマルチタスクに挑んだモバイルOSの心臓部](http://gihyo.jp/book/2017/978-4-7741-8861-4) 電子版もこちらから。
  - [Amazonのリンク](https://www.amazon.co.jp/dp/4774188611/)
 
+----
 
 ![Androidを支える技術I、書影](https://github.com/karino2/AndroidSupportTech/blob/images/front_page.png)
 
