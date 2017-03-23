@@ -9,6 +9,9 @@
 ブラウザからの見やすさを考えて、ミラーされているものはgithubのリンクを使います。 
 https://github.com/android/
 
+また、自分でブラウズする場合は https://sites.google.com/site/devcollaboration/codesearch などのサイトも便利です。
+これだけでは追いにくいコードも存在しますが、限界をわきまえて使えばとても便利なサービスです。
+
 タグとしては本書が参考にしたandroid-7.0.0_r6か、それが無いツリーではそこに近いものを適宜使います。
 
 なお、一部ファイルサイズが大きすぎてgithubのWeb UIからは目的のコードが表示されないファイルがあります。
@@ -255,3 +258,36 @@ ThreadedRendererの初期化なども、上記のViewRootImpl::setView()の中�
 - WindowInputReceiverとの関連付け https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L726
 - WindowInputReceiverはイベントがやってくるとenqueueInputEventする https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/view/ViewRootImpl.java#L6313
 - ここから先は割と素直なので読んでみていただけたらと。
+
+
+## 7章
+
+7章はとりあえずNougatについての記述の所だけ集めておきます。
+ICSなどのコードも読むと面白い発見はありますが、さすがに趣味の世界でしょう（このページ自体趣味の世界ですが…）
+
+### 7.5 Nのバイトコード実行環境
+
+- ProfileSaver::Start()などはこちら https://android.googlesource.com/platform/art/+/android-7.0.0_r6/runtime/jit/profile_saver.cc
+   - これが呼ばれるのはLoadedApkのVMRuntime.registerAppInfo()呼び出しから追うと分かりやすい
+      -  https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/core/java/android/app/LoadedApk.java#L597
+   - 実際にプロファイル情報を集めるのは同じファイル（ProfileSaver）のProcessProfilingInfo()を読む
+- BackgroundDexOptServiceの登録はこちら https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/services/core/java/com/android/server/pm/BackgroundDexOptService.java#L69
+   - profile guidedコンパイルが行われる条件が分かる（充電中とかアイドルとか）
+   - そこから呼ばれるperformDexOpt()は、いろいろ通ってperformDexOptInternalWithDependenciesLI()に行き着く
+      - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/services/core/java/com/android/server/pm/PackageManagerService.java#L7453
+         - そこからPackageDexOptimizer::perfromDexOpt()を呼んでいるのが分かる
+         - 本体はperformDexOptLI() https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/services/core/java/com/android/server/pm/PackageDexOptimizer.java#L152
+            - merge_profile呼び出しはここ https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/services/core/java/com/android/server/pm/PackageDexOptimizer.java#L182
+            - その結果を受けてdexoptが呼ばれる https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/services/core/java/com/android/server/pm/PackageDexOptimizer.java#L257
+               - 渡しているフラグでprofile guided compileが行われるかが決まる。フラグの場所は以下。
+               - https://github.com/android/platform_frameworks_base/blob/android-cts-7.0_r6/services/core/java/com/android/server/pm/PackageDexOptimizer.java#L248
+
+#### dexopt呼び出しから
+
+installdはdexoptコマンドのメッセージを受け取ると、dexopt()関数を呼び出す。
+
+- dexopt()はrun_dex2oat()を呼び出す https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/cmds/installd/commands.cpp#1538
+- run_dex2oat()の引数のprofile_fdに注意して追う https://android.googlesource.com/platform/frameworks/native/+/android-7.0.0_r6/cmds/installd/commands.cpp#694
+- dex2oatより先はこの辺から https://android.googlesource.com/platform/art/+/android-7.0.0_r6/dex2oat/dex2oat.cc#2613
+   - イメージファイル周辺もこの辺
+
