@@ -29,7 +29,8 @@ Androidを支える技術のサポートページです。
 
 ## 正誤表
 
-[第一巻、正誤表](./Part1/Errata.md)
+- [第一巻、正誤表](./Part1/Errata.md)
+- [第二巻、正誤表](./Part2/Errata.md)
 
 ## コード参照一覧
 
